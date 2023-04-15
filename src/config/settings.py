@@ -40,6 +40,7 @@ DATABASE_PASSWORD = os.environ["DATABASE_PASSWORD"]
 # Application definition
 
 INSTALLED_APPS = [
+    "biblioteka.apps.BibliotekaConfig",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
