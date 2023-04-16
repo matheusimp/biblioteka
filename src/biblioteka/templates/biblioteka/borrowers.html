@@ -3,6 +3,14 @@
 {% block title %}Clientes{% endblock title %}
 
 {% block content %}
+{% if messages %}
+<ul>
+  {% for message in messages %}
+  <li>{{ message }}</li>
+  {% endfor %}
+</ul>
+{% endif %}
+
 <h1>Clientes</h1>
 
 <p><a href="{% url 'biblioteka:borrowers_new' %}">Novo cliente</a></p>
