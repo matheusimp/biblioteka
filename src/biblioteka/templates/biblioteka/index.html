@@ -4,4 +4,7 @@
 
 {% block content %}
 <h1>Biblioteka</h1>
+<a href="{% url 'biblioteka:borrowers' %}">Lista de clientes</a>
+<br>
+<a href="{% url 'biblioteka:borrowers_new' %}">Novo cliente</a>
 {% endblock content %}
