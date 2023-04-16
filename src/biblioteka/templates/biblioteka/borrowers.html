@@ -1,0 +1,36 @@
+{% extends "biblioteka/base.html" %}
+
+{% block title %}Clientes{% endblock title %}
+
+{% block content %}
+<h1>Clientes</h1>
+
+<p><a href="{% url 'biblioteka:borrowers_new' %}">Novo cliente</a></p>
+
+{% if borrowers %}
+<table>
+  <thead>
+    <tr>
+      <th>Nome</th>
+      <th>Data de Nascimento</th>
+      <th>CPF</th>
+      <th>Celular</th>
+      <th>Email</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for borrower in borrowers %}
+    <tr>
+      <td>{{ borrower.name }}</td>
+      <td>{{ borrower.birthdate|date:"d/m/Y" }}</td>
+      <td>{{ borrower.cpf }}</td>
+      <td>{{ borrower.phone }}</td>
+      <td>{{ borrower.email|default_if_none:"" }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<p>Não há clientes cadastrados</p>
+{% endif %}
+{% endblock content %}

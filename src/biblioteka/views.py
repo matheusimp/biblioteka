@@ -1,3 +1,4 @@
+from django.contrib import messages
 from django.http import HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse
@@ -11,7 +12,11 @@ def index(request):
 
 
 def borrowers(request):
-    if request.method == "POST":
+    if request.method == "GET":
+        borrowers = Borrower.objects.all()
+        return render(request, "biblioteka/borrowers.html", {"borrowers": borrowers})
+
+    elif request.method == "POST":
         borrower = Borrower(
             name=request.POST["name"],
             birthdate=request.POST["birthdate"],
@@ -25,8 +30,10 @@ def borrowers(request):
         )
 
         borrower.save()
-
-        return HttpResponseRedirect(reverse("biblioteka:borrowers_new"))
+        messages.add_message(
+            request, messages.SUCCESS, "Cliente cadastrado com sucesso"
+        )
+        return HttpResponseRedirect(reverse("biblioteka:borrowers"))
 
 
 def borrowers_new(request):
