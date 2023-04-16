@@ -1,0 +1,51 @@
+{% extends "biblioteka/base.html" %}
+
+{% block title %}Novo cliente{% endblock title %}
+
+{% block content %}
+<h1>Novo cliente</h1>
+<form action="{% url 'biblioteka:borrowers' %}" method="post">
+  {% csrf_token %}
+  <label for="name">Nome:</label>
+  <input type="text" name="name" id="name" title="Nome completo" required>
+
+  <br>
+  <label for="birthdate">Data de nascimento:</label>
+  <input type="date" name="birthdate" id="birthdate" title="Data de nascimento" required>
+
+  <br>
+  <label for="cpf">CPF:</label>
+  <input type="text" name="cpf" id="cpf" title="CPF com 11 dígitos" pattern="[0-9]{11}" required>
+
+  <br>
+  <label for="phone">Celular:</label>
+  <input type="tel" name="phone" id="phone" title="Celular com DDD" pattern="[0-9]{10,20}" required>
+
+  <br>
+  <label for="email">Email:</label>
+  <input type="email" name="email" id="email" title="Email">
+
+  <br>
+  <label for="cep">CEP:</label>
+  <input type="text" name="zip_code" id="zip_code" title="CEP com 8 dígitos" pattern="[0-9]{8}" required>
+
+  <br>
+  <label for="address">Endereço:</label>
+  <input type="text" name="address" id="address" title="Logradouro, número, bairro e complemento" required>
+
+  <br>
+  <label for="city">Cidade:</label>
+  <input type="text" name="city" id="city" title="Cidade" required>
+
+  <br>
+  <label for="state">Estado:</label>
+  <select name="state" id="state">
+    {% for state in states %}
+    <option value="{{ state.id }}">{{ state.state }}</option>
+    {% endfor %}
+  </select>
+
+  <br>
+  <input type="submit" value="Cadastrar">
+</form>
+{% endblock content %}
