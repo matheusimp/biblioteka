@@ -3,11 +3,17 @@ from django.db import models
 
 # Create your models here.
 class CountryState(models.Model):
+    class Meta:
+        verbose_name = "estado"
+
     state = models.CharField("estado", max_length=100, unique=True)
     abbreviation = models.CharField("sigla", max_length=2, unique=True)
 
 
 class Borrower(models.Model):
+    class Meta:
+        verbose_name = "cliente"
+
     name = models.CharField("nome", max_length=255)
     birthdate = models.DateField("data de nascimento")
     cpf = models.CharField("CPF", max_length=11, unique=True)
