@@ -4,7 +4,7 @@
 
 {% block content %}
 <h1>Novo cliente</h1>
-<form action="{% url 'biblioteka:borrowers' %}" method="post">
+<form action="{% url 'biblioteka:borrowers/new' %}" method="post">
   {% csrf_token %}
   <label for="name">Nome:</label>
   <input type="text" name="name" id="name" title="Nome completo" required>

@@ -11,10 +11,15 @@ def index(request):
     return render(request, "biblioteka/index.html")
 
 
-def borrowers(request):
+def borrowers_list(request):
+    borrowers = Borrower.objects.all()
+    return render(request, "biblioteka/borrowers/list.html", {"borrowers": borrowers})
+
+
+def borrowers_new(request):
     if request.method == "GET":
-        borrowers = Borrower.objects.all()
-        return render(request, "biblioteka/borrowers.html", {"borrowers": borrowers})
+        states = CountryState.objects.all()
+        return render(request, "biblioteka/borrowers/new.html", {"states": states})
 
     elif request.method == "POST":
         borrower = Borrower(
@@ -33,9 +38,4 @@ def borrowers(request):
         messages.add_message(
             request, messages.SUCCESS, "Cliente cadastrado com sucesso"
         )
-        return HttpResponseRedirect(reverse("biblioteka:borrowers"))
-
-
-def borrowers_new(request):
-    states = CountryState.objects.all()
-    return render(request, "biblioteka/borrowers/new.html", {"states": states})
+        return HttpResponseRedirect(reverse("biblioteka:borrowers/list"))
