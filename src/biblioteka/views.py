@@ -81,5 +81,5 @@ def books_new(request):
             book.publication_date = None
 
         book.save()
-
+        messages.add_message(request, messages.SUCCESS, "Livro cadastrado com sucesso")
         return HttpResponseRedirect(reverse("biblioteka:books/list"))
