@@ -1,0 +1,50 @@
+{% extends "biblioteka/base.html" %}
+
+{% block title %}Livros{% endblock title %}
+
+{% block content %}
+{% if messages %}
+<ul>
+  {% for message in messages %}
+  <li>{{ message }}</li>
+  {% endfor %}
+</ul>
+{% endif %}
+
+<h1>Livros</h1>
+
+<p><a href="{% url 'biblioteka:books/new' %}">Cadastrar livro</a></p>
+
+{% if books %}
+<table>
+  <thead>
+    <tr>
+      <th>Título</th>
+      <th>Subtítulo</th>
+      <th>Autor</th>
+      <th>ID do Estoque</th>
+      <th>ISBN</th>
+      <th>Gênero</th>
+      <th>Editora</th>
+      <th>Data de Publicação</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for book in books %}
+    <tr>
+      <td>{{ book.title }}</td>
+      <td>{{ book.subtitle|default_if_none:"" }}</td>
+      <td>{{ book.author|default_if_none:"" }}</td>
+      <td>{{ book.inventory_id }}</td>
+      <td>{{ book.isbn }}</td>
+      <td>{{ book.genre|default_if_none:"" }}</td>
+      <td>{{ book.publisher|default_if_none:"" }}</td>
+      <td>{{ book.publication_date|default_if_none:"" }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<p>Não há livros cadastrados</p>
+{% endif %}
+{% endblock content %}
