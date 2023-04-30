@@ -3,7 +3,16 @@ from django.http import HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse
 
-from .models import Borrower, CountryState
+from .models import Book, Borrower, CountryState
+
+
+def is_empty_or_whitespace(text):
+    if text == "":
+        return True
+    if text.isspace():
+        return True
+
+    return False
 
 
 # Create your views here.
@@ -39,3 +48,33 @@ def borrowers_new(request):
             request, messages.SUCCESS, "Cliente cadastrado com sucesso"
         )
         return HttpResponseRedirect(reverse("biblioteka:borrowers/list"))
+
+
+def books_new(request):
+    if request.method == "GET":
+        return render(request, "biblioteka/books/new.html")
+
+    elif request.method == "POST":
+        book = Book(
+            inventory_id=request.POST.get("inventory_id"),
+            isbn=request.POST.get("isbn"),
+            available=True,
+            title=request.POST.get("title"),
+            subtitle=request.POST.get("subtitle"),
+            author=request.POST.get("author"),
+            genre=request.POST.get("genre"),
+            description=request.POST.get("description"),
+            pages=request.POST.get("pages"),
+            language=request.POST.get("language"),
+            publisher=request.POST.get("publisher"),
+            publication_date=request.POST.get("publication_date"),
+        )
+
+        if is_empty_or_whitespace(book.pages):
+            book.pages = None
+        if is_empty_or_whitespace(book.publication_date):
+            book.publication_date = None
+
+        book.save()
+
+        return HttpResponseRedirect(reverse("biblioteka:books/new"))
