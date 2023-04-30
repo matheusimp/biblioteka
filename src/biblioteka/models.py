@@ -25,3 +25,35 @@ class Borrower(models.Model):
     state = models.ForeignKey(
         CountryState, on_delete=models.PROTECT, verbose_name="estado"
     )
+
+
+class Book(models.Model):
+    class Meta:
+        verbose_name = "livro"
+
+    inventory_id = models.CharField("ID do estoque", unique=True)
+    isbn = models.CharField("ISBN", max_length=13)
+    available = models.BooleanField("disponível", default=True)
+    title = models.CharField("título", max_length=255)
+    subtitle = models.CharField(
+        "subtítulo", max_length=255, blank=True, default=None, null=True
+    )
+    author = models.CharField(
+        "autor", max_length=255, blank=True, default=None, null=True
+    )
+    genre = models.CharField(
+        "gênero", max_length=255, blank=True, default=None, null=True
+    )
+    description = models.TextField(
+        "descrição", max_length=1000, blank=True, default=None, null=True
+    )
+    pages = models.IntegerField("páginas", blank=True, default=None, null=True)
+    language = models.CharField(
+        "idioma", max_length=100, blank=True, default=None, null=True
+    )
+    publisher = models.CharField(
+        "editora", max_length=255, blank=True, default=None, null=True
+    )
+    publication_date = models.DateField(
+        "data de publicação", blank=True, default=None, null=True
+    )
