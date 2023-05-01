@@ -50,6 +50,11 @@ def borrowers_new(request):
         return HttpResponseRedirect(reverse("biblioteka:borrowers/list"))
 
 
+def books_list(request):
+    books = Book.objects.all()
+    return render(request, "biblioteka/books/list.html", {"books": books})
+
+
 def books_new(request):
     if request.method == "GET":
         return render(request, "biblioteka/books/new.html")
@@ -76,5 +81,5 @@ def books_new(request):
             book.publication_date = None
 
         book.save()
-
-        return HttpResponseRedirect(reverse("biblioteka:books/new"))
+        messages.add_message(request, messages.SUCCESS, "Livro cadastrado com sucesso")
+        return HttpResponseRedirect(reverse("biblioteka:books/list"))
