@@ -32,15 +32,15 @@ def borrowers_new(request):
 
     elif request.method == "POST":
         borrower = Borrower(
-            name=request.POST["name"],
-            birthdate=request.POST["birthdate"],
-            cpf=request.POST["cpf"],
-            phone=request.POST["phone"],
-            email=request.POST["email"],
-            zip_code=request.POST["zip_code"],
-            address=request.POST["address"],
-            city=request.POST["city"],
-            state=CountryState.objects.get(pk=request.POST["state"]),
+            name=request.POST.get("name"),
+            birthdate=request.POST.get("birthdate"),
+            cpf=request.POST.get("cpf"),
+            phone=request.POST.get("phone"),
+            email=request.POST.get("email"),
+            zip_code=request.POST.get("zip_code"),
+            address=request.POST.get("address"),
+            city=request.POST.get("city"),
+            state=CountryState.objects.get(pk=request.POST.get("state")),
         )
 
         borrower.save()
@@ -75,9 +75,11 @@ def books_new(request):
             publication_date=request.POST.get("publication_date"),
         )
 
-        if is_empty_or_whitespace(book.pages):
+        if book.pages is not None and is_empty_or_whitespace(book.pages):
             book.pages = None
-        if is_empty_or_whitespace(book.publication_date):
+        if book.publication_date is not None and is_empty_or_whitespace(
+            book.publication_date
+        ):
             book.publication_date = None
 
         book.save()
