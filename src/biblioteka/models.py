@@ -3,6 +3,10 @@ from django.db import models
 
 # Create your models here.
 class CountryState(models.Model):
+    def save(self, *args, **kwargs):
+        self.full_clean()
+        super().save(*args, **kwargs)
+
     class Meta:
         verbose_name = "estado"
 
@@ -11,6 +15,10 @@ class CountryState(models.Model):
 
 
 class Borrower(models.Model):
+    def save(self, *args, **kwargs):
+        self.full_clean()
+        super().save(*args, **kwargs)
+
     class Meta:
         verbose_name = "cliente"
 
@@ -28,6 +36,10 @@ class Borrower(models.Model):
 
 
 class Book(models.Model):
+    def save(self, *args, **kwargs):
+        self.full_clean()
+        super().save(*args, **kwargs)
+
     class Meta:
         verbose_name = "livro"
 
