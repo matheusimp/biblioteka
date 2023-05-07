@@ -149,7 +149,7 @@ class Book(models.Model):
     class Meta:
         verbose_name = "livro"
 
-    inventory_id = models.CharField("ID do estoque", unique=True)
+    inventory_id = models.CharField("ID do estoque", max_length=100, unique=True)
     isbn = models.CharField("ISBN", max_length=13)
     available = models.BooleanField("disponível", default=True)
     title = models.CharField("título", max_length=255)
