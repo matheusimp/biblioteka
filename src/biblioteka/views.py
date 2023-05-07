@@ -75,9 +75,11 @@ def books_new(request):
             publication_date=request.POST.get("publication_date"),
         )
 
-        if is_empty_or_whitespace(book.pages):
+        if book.pages is not None and is_empty_or_whitespace(book.pages):
             book.pages = None
-        if is_empty_or_whitespace(book.publication_date):
+        if book.publication_date is not None and is_empty_or_whitespace(
+            book.publication_date
+        ):
             book.publication_date = None
 
         book.save()

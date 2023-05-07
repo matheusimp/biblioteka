@@ -146,31 +146,84 @@ class Book(models.Model):
         self.full_clean()
         super().save(*args, **kwargs)
 
+    def validate_10_or_13_characters(text):
+        if len(text) != 10 and len(text) != 13:
+            raise ValidationError(f"ISBN deve conter 10 ou 13 dígitos")
+
     class Meta:
         verbose_name = "livro"
 
-    inventory_id = models.CharField("ID do estoque", max_length=100, unique=True)
-    isbn = models.CharField("ISBN", max_length=13)
+    inventory_id = models.CharField(
+        "ID do estoque", max_length=100, unique=True, validators=[validate_not_empty]
+    )
+    isbn = models.CharField(
+        "ISBN",
+        max_length=13,
+        validators=[
+            validate_not_empty,
+            validate_no_whitespace,
+            validate_only_digits,
+            validate_10_or_13_characters,
+            MinLengthValidator(10, "ISBN deve conter no mínimo 10 dígitos"),
+        ],
+    )
     available = models.BooleanField("disponível", default=True)
-    title = models.CharField("título", max_length=255)
+    title = models.CharField(
+        "título",
+        max_length=255,
+        validators=[
+            validate_not_empty,
+            validate_no_leading_trailing_consecutive_whitespace,
+        ],
+    )
     subtitle = models.CharField(
-        "subtítulo", max_length=255, blank=True, default=None, null=True
+        "subtítulo",
+        max_length=255,
+        blank=True,
+        default=None,
+        null=True,
+        validators=[validate_no_leading_trailing_consecutive_whitespace],
     )
     author = models.CharField(
-        "autor", max_length=255, blank=True, default=None, null=True
+        "autor",
+        max_length=255,
+        blank=True,
+        default=None,
+        null=True,
+        validators=[validate_no_leading_trailing_consecutive_whitespace],
     )
     genre = models.CharField(
-        "gênero", max_length=255, blank=True, default=None, null=True
+        "gênero",
+        max_length=255,
+        blank=True,
+        default=None,
+        null=True,
+        validators=[validate_no_leading_trailing_consecutive_whitespace],
     )
     description = models.TextField(
-        "descrição", max_length=1000, blank=True, default=None, null=True
+        "descrição",
+        max_length=1000,
+        blank=True,
+        default=None,
+        null=True,
+        validators=[validate_no_leading_trailing_consecutive_whitespace],
     )
     pages = models.IntegerField("páginas", blank=True, default=None, null=True)
     language = models.CharField(
-        "idioma", max_length=100, blank=True, default=None, null=True
+        "idioma",
+        max_length=100,
+        blank=True,
+        default=None,
+        null=True,
+        validators=[validate_no_leading_trailing_consecutive_whitespace],
     )
     publisher = models.CharField(
-        "editora", max_length=255, blank=True, default=None, null=True
+        "editora",
+        max_length=255,
+        blank=True,
+        default=None,
+        null=True,
+        validators=[validate_no_leading_trailing_consecutive_whitespace],
     )
     publication_date = models.DateField(
         "data de publicação", blank=True, default=None, null=True
