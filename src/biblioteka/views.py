@@ -1,4 +1,5 @@
 from django.contrib import messages
+from django.core.exceptions import ValidationError
 from django.http import HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse
@@ -6,13 +7,18 @@ from django.urls import reverse
 from .models import Book, Borrower, CountryState
 
 
-def is_empty_or_whitespace(text):
-    if text == "":
-        return True
-    if text.isspace():
-        return True
+# If it's None, empty ("") or only whitespace (" "), return None
+# Otherwise strip leading/trailing space and consecutive spaces and return the string
+def sanitize_input(text):
+    if text is None or text == "" or text.isspace():
+        return None
 
-    return False
+    # Remove leading/trailing spaces
+    text = text.strip()
+    # Remove consecutive spaces
+    text = " ".join(text.split())
+
+    return text
 
 
 # Create your views here.
@@ -31,23 +37,43 @@ def borrowers_new(request):
         return render(request, "biblioteka/borrowers/new.html", {"states": states})
 
     elif request.method == "POST":
+        name = sanitize_input(request.POST.get("name"))
+        birthdate = sanitize_input(request.POST.get("birthdate"))
+        cpf = sanitize_input(request.POST.get("cpf"))
+        phone = sanitize_input(request.POST.get("phone"))
+        email = sanitize_input(request.POST.get("email"))
+        zip_code = sanitize_input(request.POST.get("zip_code"))
+        address = sanitize_input(request.POST.get("address"))
+        city = sanitize_input(request.POST.get("city"))
+        state = sanitize_input(request.POST.get("state"))
+
         borrower = Borrower(
-            name=request.POST.get("name"),
-            birthdate=request.POST.get("birthdate"),
-            cpf=request.POST.get("cpf"),
-            phone=request.POST.get("phone"),
-            email=request.POST.get("email"),
-            zip_code=request.POST.get("zip_code"),
-            address=request.POST.get("address"),
-            city=request.POST.get("city"),
-            state=CountryState.objects.get(pk=request.POST.get("state")),
+            name=name,
+            birthdate=birthdate,
+            cpf=cpf,
+            phone=phone,
+            email=email,
+            zip_code=zip_code,
+            address=address,
+            city=city,
+            state=CountryState.objects.get(pk=state),
         )
 
-        borrower.save()
-        messages.add_message(
-            request, messages.SUCCESS, "Cliente cadastrado com sucesso"
-        )
-        return HttpResponseRedirect(reverse("biblioteka:borrowers/list"))
+        try:
+            borrower.save()
+        except ValidationError as validation_error:
+            for field, errors in validation_error:
+                field_verbose_name = Borrower._meta.get_field(
+                    field
+                ).verbose_name.capitalize()
+
+                error_message = f"{field_verbose_name}: {' / '.join(errors)}"
+
+                messages.error(request, error_message)
+            return HttpResponseRedirect(reverse("biblioteka:borrowers/new"))
+        else:
+            messages.success(request, "Cliente cadastrado com sucesso")
+            return HttpResponseRedirect(reverse("biblioteka:borrowers/list"))
 
 
 def books_list(request):
@@ -60,28 +86,46 @@ def books_new(request):
         return render(request, "biblioteka/books/new.html")
 
     elif request.method == "POST":
+        inventory_id = sanitize_input(request.POST.get("inventory_id"))
+        isbn = sanitize_input(request.POST.get("isbn"))
+        available = True
+        title = sanitize_input(request.POST.get("title"))
+        subtitle = sanitize_input(request.POST.get("subtitle"))
+        author = sanitize_input(request.POST.get("author"))
+        genre = sanitize_input(request.POST.get("genre"))
+        description = sanitize_input(request.POST.get("description"))
+        pages = sanitize_input(request.POST.get("pages"))
+        language = sanitize_input(request.POST.get("language"))
+        publisher = sanitize_input(request.POST.get("publisher"))
+        publication_date = sanitize_input(request.POST.get("publication_date"))
+
         book = Book(
-            inventory_id=request.POST.get("inventory_id"),
-            isbn=request.POST.get("isbn"),
-            available=True,
-            title=request.POST.get("title"),
-            subtitle=request.POST.get("subtitle"),
-            author=request.POST.get("author"),
-            genre=request.POST.get("genre"),
-            description=request.POST.get("description"),
-            pages=request.POST.get("pages"),
-            language=request.POST.get("language"),
-            publisher=request.POST.get("publisher"),
-            publication_date=request.POST.get("publication_date"),
+            inventory_id=inventory_id,
+            isbn=isbn,
+            available=available,
+            title=title,
+            subtitle=subtitle,
+            author=author,
+            genre=genre,
+            description=description,
+            pages=pages,
+            language=language,
+            publisher=publisher,
+            publication_date=publication_date,
         )
 
-        if book.pages is not None and is_empty_or_whitespace(book.pages):
-            book.pages = None
-        if book.publication_date is not None and is_empty_or_whitespace(
-            book.publication_date
-        ):
-            book.publication_date = None
+        try:
+            book.save()
+        except ValidationError as validation_error:
+            for field, errors in validation_error:
+                field_verbose_name = Book._meta.get_field(
+                    field
+                ).verbose_name.capitalize()
 
-        book.save()
-        messages.add_message(request, messages.SUCCESS, "Livro cadastrado com sucesso")
-        return HttpResponseRedirect(reverse("biblioteka:books/list"))
+                error_message = f"{field_verbose_name}: {' / '.join(errors)}"
+
+                messages.error(request, error_message)
+            return HttpResponseRedirect(reverse("biblioteka:books/new"))
+        else:
+            messages.success(request, "Livro cadastrado com sucesso")
+            return HttpResponseRedirect(reverse("biblioteka:books/list"))

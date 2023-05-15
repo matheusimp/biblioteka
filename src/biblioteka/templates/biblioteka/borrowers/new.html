@@ -3,6 +3,14 @@
 {% block title %}Novo cliente{% endblock title %}
 
 {% block content %}
+{% if messages %}
+<ul>
+  {% for message in messages %}
+  <li>{{ message }}</li>
+  {% endfor %}
+</ul>
+{% endif %}
+
 <h1>Novo cliente</h1>
 <form action="{% url 'biblioteka:borrowers/new' %}" method="post">
   {% csrf_token %}

@@ -3,6 +3,14 @@
 {% block title %}Cadastrar livro{% endblock title %}
 
 {% block content %}
+{% if messages %}
+<ul>
+  {% for message in messages %}
+  <li>{{ message }}</li>
+  {% endfor %}
+</ul>
+{% endif %}
+
 <h1>Cadastrar livro</h1>
 <form action="{% url 'biblioteka:books/new' %}" method="post">
   {% csrf_token %}
