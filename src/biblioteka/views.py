@@ -1,4 +1,5 @@
 from django.contrib import messages
+from django.core.exceptions import ValidationError
 from django.http import HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse
@@ -58,11 +59,21 @@ def borrowers_new(request):
             state=CountryState.objects.get(pk=state),
         )
 
-        borrower.save()
-        messages.add_message(
-            request, messages.SUCCESS, "Cliente cadastrado com sucesso"
-        )
-        return HttpResponseRedirect(reverse("biblioteka:borrowers/list"))
+        try:
+            borrower.save()
+        except ValidationError as validation_error:
+            for field, errors in validation_error:
+                field_verbose_name = Borrower._meta.get_field(
+                    field
+                ).verbose_name.capitalize()
+
+                error_message = f"{field_verbose_name}: {' / '.join(errors)}"
+
+                messages.error(request, error_message)
+            return HttpResponseRedirect(reverse("biblioteka:borrowers/new"))
+        else:
+            messages.success(request, "Cliente cadastrado com sucesso")
+            return HttpResponseRedirect(reverse("biblioteka:borrowers/list"))
 
 
 def books_list(request):
@@ -103,6 +114,18 @@ def books_new(request):
             publication_date=publication_date,
         )
 
-        book.save()
-        messages.add_message(request, messages.SUCCESS, "Livro cadastrado com sucesso")
-        return HttpResponseRedirect(reverse("biblioteka:books/list"))
+        try:
+            book.save()
+        except ValidationError as validation_error:
+            for field, errors in validation_error:
+                field_verbose_name = Book._meta.get_field(
+                    field
+                ).verbose_name.capitalize()
+
+                error_message = f"{field_verbose_name}: {' / '.join(errors)}"
+
+                messages.error(request, error_message)
+            return HttpResponseRedirect(reverse("biblioteka:books/new"))
+        else:
+            messages.success(request, "Livro cadastrado com sucesso")
+            return HttpResponseRedirect(reverse("biblioteka:books/list"))
