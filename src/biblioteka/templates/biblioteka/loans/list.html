@@ -17,6 +17,7 @@
 
 {% if loans %}
 <form action="{% url 'biblioteka:loans/return' %}" method="post">
+  {% csrf_token %}
   <table>
     <thead>
       <tr>
