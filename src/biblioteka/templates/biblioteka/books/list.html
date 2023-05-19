@@ -19,6 +19,7 @@
 <table>
   <thead>
     <tr>
+      <th></th>
       <th>Título</th>
       <th>Subtítulo</th>
       <th>Autor</th>
@@ -32,6 +33,10 @@
   <tbody>
     {% for book in books %}
     <tr>
+      <td>{% if book.available %}
+        <a href="{% url 'biblioteka:loans/new' book_id=book.id %}"><button type=" button">Emprestar</button></a>
+        {% endif %}
+      </td>
       <td>{{ book.title }}</td>
       <td>{{ book.subtitle|default_if_none:"" }}</td>
       <td>{{ book.author|default_if_none:"" }}</td>

@@ -3,6 +3,7 @@ import string
 from django.core.exceptions import ValidationError
 from django.core.validators import MinLengthValidator
 from django.db import models
+from django.db.models import Q, UniqueConstraint
 from django.utils import timezone
 from django.utils.dateparse import parse_datetime
 
@@ -150,6 +151,13 @@ class Book(models.Model):
         if len(text) != 10 and len(text) != 13:
             raise ValidationError(f"ISBN deve conter 10 ou 13 dígitos")
 
+    def is_borrowed(self):
+        active_loan = Loan.objects.filter(book=self.id).filter(
+            returned_date__isnull=True
+        )
+
+        return active_loan.exists()
+
     class Meta:
         verbose_name = "livro"
 
@@ -227,4 +235,49 @@ class Book(models.Model):
     )
     publication_date = models.DateField(
         "data de publicação", blank=True, default=None, null=True
+    )
+
+
+class LoanOptions(models.Model):
+    def save(self, *args, **kwargs):
+        self.full_clean()
+        super().save(*args, **kwargs)
+
+    class Meta:
+        verbose_name = "opções de empréstimo"
+
+    loan_period = models.IntegerField("prazo de empréstimo")
+
+
+class Loan(models.Model):
+    def save(self, *args, **kwargs):
+        self.full_clean()
+        super().save(*args, **kwargs)
+
+    def is_active(self):
+        return self.returned_date is None
+
+    class Meta:
+        verbose_name = "empréstimo"
+        constraints = [
+            UniqueConstraint(
+                name="one_active_loan_per_book",
+                fields=["book"],
+                condition=Q(returned_date=None),
+            )
+        ]
+
+    book = models.ForeignKey(Book, on_delete=models.PROTECT, verbose_name="livro")
+    borrower = models.ForeignKey(
+        Borrower, on_delete=models.PROTECT, verbose_name="cliente"
+    )
+    borrowed_date = models.DateField(
+        "data de locação", validators=[validate_date_not_in_future]
+    )
+    due_date = models.DateField("prazo de devolução")
+    returned_date = models.DateField(
+        "data de devolução",
+        blank=True,
+        null=True,
+        validators=[validate_date_not_in_future],
     )
