@@ -273,5 +273,8 @@ class Loan(models.Model):
     )
     due_date = models.DateField("prazo de devolução")
     returned_date = models.DateField(
-        "data de devolução", null=True, validators=[validate_date_not_in_future]
+        "data de devolução",
+        blank=True,
+        null=True,
+        validators=[validate_date_not_in_future],
     )
