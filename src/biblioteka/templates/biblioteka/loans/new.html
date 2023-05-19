@@ -1,0 +1,60 @@
+{% extends "biblioteka/base.html" %}
+
+{% block title %}Emprestar livro{% endblock title %}
+
+{% block content %}
+{% if messages %}
+<ul>
+  {% for message in messages %}
+  <li>{{ message }}</li>
+  {% endfor %}
+</ul>
+{% endif %}
+
+<h1>Emprestar livro</h1>
+
+<h2>{{ book.title }}</h2>
+<p>Disponível: {{ book.available|yesno:"Sim,Não"}}</p>
+<p>Subtítulo: {{ book.subtitle|default_if_none:"" }}</p>
+<p>Autor: {{ book.author|default_if_none:"" }}</p>
+<p>ID do estoque: {{ book.inventory_id }}</p>
+<p>ISBN: {{ book.isbn }}</p>
+<p>Gênero: {{ book.genre|default_if_none:"" }}</p>
+<p>Páginas: {{ book.pages|default_if_none:"" }}</p>
+<p>Idioma: {{ book.language|default_if_none:"" }}</p>
+<p>Editora: {{ book.publisher|default_if_none:"" }}</p>
+<p>Data de Publicação: {{ book.publication_date|default_if_none:"" }}</p>
+
+{% if borrowers %}
+<form action="{% url 'biblioteka:loans/new' book_id=book.id %}" method="post">
+  {% csrf_token %}
+  <table>
+    <thead>
+      <tr>
+        <th></th>
+        <th>Nome</th>
+        <th>Data de Nascimento</th>
+        <th>CPF</th>
+        <th>Celular</th>
+        <th>Email</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for borrower in borrowers %}
+      <tr>
+        <td><button type="submit" name="borrower_id" value="{{ borrower.id }}">Emprestar</button></td>
+        <td>{{ borrower.name }}</td>
+        <td>{{ borrower.birthdate|date:"d/m/Y" }}</td>
+        <td>{{ borrower.cpf }}</td>
+        <td>{{ borrower.phone }}</td>
+        <td>{{ borrower.email|default_if_none:"" }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p>Não há clientes cadastrados</p>
+
+</form>
+{% endif %}
+{% endblock content %}

@@ -1,10 +1,14 @@
+from datetime import timedelta
+
 from django.contrib import messages
 from django.core.exceptions import ValidationError
+from django.db import transaction
 from django.http import HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse
+from django.utils import timezone
 
-from .models import Book, Borrower, CountryState
+from .models import Book, Borrower, CountryState, Loan, LoanOptions
 
 
 # If it's None, empty ("") or only whitespace (" "), return None
@@ -129,3 +133,73 @@ def books_new(request):
         else:
             messages.success(request, "Livro cadastrado com sucesso")
             return HttpResponseRedirect(reverse("biblioteka:books/list"))
+
+
+def loans_list(request):
+    loans = Loan.objects.all()
+    return render(request, "biblioteka/loans/list.html", {"loans": loans})
+
+
+def loans_new(request, book_id):
+    if request.method == "GET":
+        if book_id is None:
+            messages.error(request, "Livro não informado")
+            return HttpResponseRedirect(reverse("biblioteka:books/list"))
+
+        book = Book.objects.get(pk=book_id)
+        if not book.available:
+            messages.error(request, "O livro não está disponível")
+            return HttpResponseRedirect(reverse("biblioteka:books/list"))
+
+        borrowers = Borrower.objects.all()
+        return render(
+            request, "biblioteka/loans/new.html", {"book": book, "borrowers": borrowers}
+        )
+
+    elif request.method == "POST":
+        book = Book.objects.get(pk=book_id)
+        if not book.available:
+            messages.error(request, "O livro não está disponível para empréstimo")
+            return HttpResponseRedirect(reverse("biblioteka:books/list"))
+
+        borrower = sanitize_input(request.POST.get("borrower_id"))
+
+        borrowed_date = timezone.localtime().date()
+
+        loan_period = LoanOptions.objects.first().loan_period
+        due_date = borrowed_date + timedelta(days=loan_period)
+        while due_date.weekday() in (saturday := 5, sunday := 6):
+            due_date = due_date + timedelta(days=1)
+
+        loan = Loan(
+            book=book,
+            borrower=Borrower.objects.get(pk=borrower),
+            borrowed_date=borrowed_date,
+            due_date=due_date,
+            returned_date=None,
+        )
+
+        book.available = False
+
+        try:
+            with transaction.atomic():
+                loan.save()
+                book.save()
+
+        except ValidationError as validation_error:
+            for field, errors in validation_error:
+                try:
+                    field_verbose_name = Loan._meta.get_field(
+                        field
+                    ).verbose_name.capitalize()
+                    error_message = f"{field_verbose_name}: {' / '.join(errors)}"
+                except:
+                    error_message = f"{' / '.join(errors)}"
+
+                messages.error(request, error_message)
+            return HttpResponseRedirect(
+                reverse("biblioteka:loans/new", kwargs={"book_id": book_id})
+            )
+        else:
+            messages.success(request, "Empréstimo realizado com sucesso")
+            return HttpResponseRedirect(reverse("biblioteka:loans/list"))
