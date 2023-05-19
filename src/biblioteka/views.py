@@ -203,3 +203,36 @@ def loans_new(request, book_id):
         else:
             messages.success(request, "Empréstimo realizado com sucesso")
             return HttpResponseRedirect(reverse("biblioteka:loans/list"))
+
+
+def loans_return(request):
+    if request.method == "POST":
+        loan_id = sanitize_input(request.POST.get("loan_id"))
+        loan = Loan.objects.get(pk=loan_id)
+        book = loan.book
+
+        loan.returned_date = timezone.localtime().date()
+
+        if loan.is_active():
+            messages.error(request, "O livro não está emprestado")
+            return HttpResponseRedirect(reverse("biblioteka:loans/list"))
+
+        try:
+            with transaction.atomic():
+                book.available = True
+                loan.save()
+                book.save()
+
+        except ValidationError as validation_error:
+            for field, errors in validation_error:
+                field_verbose_name = Loan._meta.get_field(
+                    field
+                ).verbose_name.capitalize()
+
+                error_message = f"{field_verbose_name}: {' / '.join(errors)}"
+
+                messages.error(request, error_message)
+            return HttpResponseRedirect(reverse("biblioteka:loans/list"))
+        else:
+            messages.success(request, "Livro devolvido com sucesso")
+            return HttpResponseRedirect(reverse("biblioteka:loans/list"))

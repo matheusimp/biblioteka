@@ -16,34 +16,41 @@
 <p><a href="{% url 'biblioteka:books/list' %}">Novo empréstimo</a></p>
 
 {% if loans %}
-<table>
-  <thead>
-    <tr>
-      <th>Livro</th>
-      <th>ID do estoque</th>
-      <th>ISBN</th>
-      <th>Cliente</th>
-      <th>CPF</th>
-      <th>Data de locação</th>
-      <th>Prazo de devolução</th>
-      <th>Data de devolução</th>
-    </tr>
-  </thead>
-  <tbody>
-    {% for loan in loans %}
-    <tr>
-      <td>{{ loan.book.title }}</td>
-      <td>{{ loan.book.inventory_id }}</td>
-      <td>{{ loan.book.isbn }}</td>
-      <td>{{ loan.borrower.name }}</td>
-      <td>{{ loan.borrower.cpf }}</td>
-      <td>{{ loan.borrowed_date|date:"d/m/Y" }}</td>
-      <td>{{ loan.due_date|date:"d/m/Y" }}</td>
-      <td>{% if loan.returned_date is None %}Pendente{% else %}{{ loan.returned_date|date:"d/m/Y" }}{% endif %}</td>
-    </tr>
-    {% endfor %}
-  </tbody>
-</table>
+<form action="{% url 'biblioteka:loans/return' %}" method="post">
+  <table>
+    <thead>
+      <tr>
+        <th></th>
+        <th>Livro</th>
+        <th>ID do estoque</th>
+        <th>ISBN</th>
+        <th>Cliente</th>
+        <th>CPF</th>
+        <th>Data de locação</th>
+        <th>Prazo de devolução</th>
+        <th>Data de devolução</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for loan in loans %}
+      <tr>
+        <td>{% if loan.is_active %}
+          <button type="submit" name="loan_id" value="{{ loan.id }}">Devolver</button>
+          {% endif %}
+        </td>
+        <td>{{ loan.book.title }}</td>
+        <td>{{ loan.book.inventory_id }}</td>
+        <td>{{ loan.book.isbn }}</td>
+        <td>{{ loan.borrower.name }}</td>
+        <td>{{ loan.borrower.cpf }}</td>
+        <td>{{ loan.borrowed_date|date:"d/m/Y" }}</td>
+        <td>{{ loan.due_date|date:"d/m/Y" }}</td>
+        <td>{% if loan.returned_date is None %}Pendente{% else %}{{ loan.returned_date|date:"d/m/Y" }}{% endif %}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</form>
 {% else %}
 <p>Não há empréstimos realizados</p>
 {% endif %}

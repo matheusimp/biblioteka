@@ -254,6 +254,9 @@ class Loan(models.Model):
         self.full_clean()
         super().save(*args, **kwargs)
 
+    def is_active(self):
+        return self.returned_date is None
+
     class Meta:
         verbose_name = "empréstimo"
         constraints = [
