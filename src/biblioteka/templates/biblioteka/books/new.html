@@ -11,6 +11,8 @@
 </ul>
 {% endif %}
 
+<a href="{% url 'biblioteka:index' %}">Página inicial</a>
+
 <h1>Cadastrar livro</h1>
 <form action="{% url 'biblioteka:books/new' %}" method="post">
   {% csrf_token %}

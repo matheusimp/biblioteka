@@ -11,6 +11,8 @@
 </ul>
 {% endif %}
 
+<a href="{% url 'biblioteka:index' %}">Página inicial</a>
+
 <h1>Novo cliente</h1>
 <form action="{% url 'biblioteka:borrowers/new' %}" method="post">
   {% csrf_token %}
